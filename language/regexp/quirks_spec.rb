@@ -1,22 +1,35 @@
 require File.expand_path('../../../spec_helper', __FILE__)
 require File.expand_path('../../fixtures/classes', __FILE__)
 
-describe "The Regexp engine" do
-  it "does that stupid thing with /[\\W]/i" do
+describe "regexp quirks" do
+  describe "(that stupid thing with /[\\W]/i)" do
     # 'fL' =~ U+FB02 LATIN SMALL LIGATURE FL
     # 'Ff' =~ U+FB00 LATIN SMALL LIGATURE FF
+    # 'G'  is a word character
     # 'Ss' =~ U+00DF LATIN SMALL LETTER SHARP S
-    "fLFfGSs".scan(/\W/).should == []
-    "fLFfGSs".scan(/\W/i).should == []
+    # 's'  is a word character
+    # '.'  is a non-word character
 
-    "fLFfGSs".scan(/[\W]/).should == []
-    "fLFfGSs".scan(/[\W]/i).should == ["fL", "Ff", "Ss"]
+    it "can match 'a non-word character' without character classes irrespective of case" do
+      "fLFfGSss.".scan(/\W/).should == ["."]
+      "fLFfGSss.".scan(/\W/i).should == ["."]
+    end
 
-    "fLFfGSs".scan(/[^\w]+/).should == []
-    "fLFfGSs".scan(/[^\w]+/i).should == []
+    it "can match 'not a word character' with character classes irrespective of case" do
+      "fLFfGSss.".scan(/[^\w]+/).should == ["."]
+      "fLFfGSss.".scan(/[^\w]+/i).should == ["."]
+    end
 
-    "fLFfGSs".scan(/[^\W]+/).should == ["fLFfGSs"]
-    "fLFfGSs".scan(/[^\W]+/i).should == ["fLFfGSs"]
+    it "only triggers with [\W] and the //i flag" do
+      "fLFfGSss.".scan(/[\W]/).should == ["."]  # case-sensitive
+      "fLFfGSss.".scan(/[\W]/i).should == ["fL", "Ff", "Ss", "."]
+    end
+
+    # ???
+    it "does this other weird thing properly" do
+      "fLFfGSss.".scan(/[^\W]+/).should == ["fLFfGSss"]
+      "fLFfGSss.".scan(/[^\W]+/i).should == ["fLFfGSss"]
+    end
   end
 end
 
