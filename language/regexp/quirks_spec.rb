@@ -21,7 +21,6 @@ describe "regexp quirks" do
     it "doesn't match without a character class" do
       (/\W/i =~ 'SS').should == nil # ß (no cases, no decomposition, ~ 'SS'|'ss')
       (/\W/i =~ 'FF').should == nil # ﬀ (no cases, decomposition = 'f'+'f', ~ 'FF'|'ff')
-      (/\W/i =~ 'M').should == nil  # ℳ (Lu, decomposition = 'M', ~ 'M')
       (/\W/i =~ 'k').should == nil  # K (lc = 'k', decomposition = 'K', ~ 'K'|'k')
     end
 
@@ -29,7 +28,6 @@ describe "regexp quirks" do
       it "doesn't match with a character class" do
         (/[\W]/i =~ 'SS').should == nil # ß (Ll, no Lu, no decomposition, ~ 'SS'|'ss')
         (/[\W]/i =~ 'FF').should == nil # ﬀ (Ll, no Lu, decomposition = 'f'+'f', ~ 'FF'|'ff')
-        (/[\W]/i =~ 'M' ).should == nil # ℳ (Lu, no Ll, decomposition = 'M', ~ 'M')
         (/[\W]/i =~ 'k').should == nil  # K (Lu, Ll = 'k', decomposition = 'K', ~ 'K'|'k')
       end
       it "doesn't make sense with a negated character class" do
@@ -38,10 +36,9 @@ describe "regexp quirks" do
         (/[^\W]/i =~ 'k').should == 0
       end
     elsif RUBY_VERSION < '2.2'
-      it "sometimes matches with a character class" do
+      it "matches with a character class" do
         (/[\W]/i =~ 'SS').should == 0   # ß (Ll, no Lu, no decomposition, ~ 'SS'|'ss')
         (/[\W]/i =~ 'FF').should == 0   # ﬀ (Ll, no Lu, decomposition = 'f'+'f', ~ 'FF'|'ff')
-        (/[\W]/i =~ 'M' ).should == nil # ℳ (Lu, no Ll, decomposition = 'M', ~ 'M')
         (/[\W]/i =~ 'k').should == 0    # K (Lu, Ll = 'k', decomposition = 'K', ~ 'K'|'k')
       end
       it "sometimes doesn't make sense with a negated character class" do
@@ -53,7 +50,6 @@ describe "regexp quirks" do
       it "sommetimes matches with a character class" do
         (/[\W]/i =~ 'SS').should == 0   # ß (Ll, no Lu, no decomposition, ~ 'SS'|'ss')
         (/[\W]/i =~ 'FF').should == 0   # ﬀ (Ll, no Lu, decomposition = 'f'+'f', ~ 'FF'|'ff')
-        (/[\W]/i =~ 'M' ).should == nil # ℳ (Lu, no Ll, decomposition = 'M', ~ 'M')
         (/[\W]/i =~ 'k').should == nil  # K (Lu, Ll = 'k', decomposition = 'K', ~ 'K'|'k')
       end
       it "doesn't make sense with a negated character class" do
